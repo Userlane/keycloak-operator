@@ -132,6 +132,7 @@ func testExperimentalVolumesWithConfigMaps(t *testing.T, deploymentFunction crea
 	dbSecret := &v1.Secret{}
 	cr := &v1alpha1.Keycloak{
 		Spec: v1alpha1.KeycloakSpec{
+			Extensions: []string{"extension1"},
 			KeycloakDeploymentSpec: v1alpha1.KeycloakDeploymentSpec{
 				Experimental: v1alpha1.ExperimentalSpec{
 					Volumes: v1alpha1.VolumesSpec{

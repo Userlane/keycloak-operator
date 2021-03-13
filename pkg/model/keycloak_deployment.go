@@ -301,14 +301,17 @@ func KeycloakVolumeMounts(cr *v1alpha1.Keycloak, extensionsPath string) []v1.Vol
 			MountPath: "/etc/x509/https",
 		},
 		{
-			Name:      "keycloak-extensions",
-			ReadOnly:  false,
-			MountPath: extensionsPath,
-		},
-		{
 			Name:      KeycloakProbesName,
 			MountPath: "/probes",
 		},
+	}
+	// Add extensions volume only if it extensions have been added
+	if len(cr.Spec.Extensions) != 0 {
+		mountedVolumes = append(mountedVolumes, []v1.VolumeMount{{
+			Name:      "keycloak-extensions",
+			ReadOnly:  false,
+			MountPath: extensionsPath,
+		}}...)
 	}
 
 	mountedVolumes = addVolumeMountsFromKeycloakCR(cr, mountedVolumes)
