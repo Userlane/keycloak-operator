@@ -86,6 +86,15 @@ func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 				AccountTheme:                "keycloak",
 				AdminTheme:                  "keycloak",
 				EmailTheme:                  "keycloak",
+				BrowserSecurityHeaders: map[string]string{
+					"contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+					"contentSecurityPolicyReportOnly": "max-age=31536000; includeSubDomains",
+					"strictTransportSecurity": "",
+					"xContentTypeOptions": "nosniff",
+					"xFrameOptions", "",
+					"xRobotsTag": "none",
+					"xXSSProtection": "1; mode=block",
+				}
 			},
 		},
 	}

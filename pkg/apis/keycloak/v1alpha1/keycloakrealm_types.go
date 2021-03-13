@@ -171,6 +171,10 @@ type KeycloakAPIRealm struct {
 	// Client Scope Mappings
 	// +optional
 	ClientScopeMappings map[string]ScopeMappingRepresentationArray `json:"clientScopeMappings,omitempty"`
+
+	// Headers
+	// +optional
+	BrowserSecurityHeaders map[string]string `json:"browserSecurityHeaders,omitempty"`
 }
 
 type RoleRepresentationArray []RoleRepresentation
