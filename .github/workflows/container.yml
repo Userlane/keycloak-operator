@@ -11,6 +11,11 @@ on:
     types:
       - opened
       - synchronize
+
+env:
+  REGISTRY_NAME: uslnmaincr
+  APP_NAME: keycloak-operator
+  
 jobs:
   build:
     name: Build
@@ -23,14 +28,16 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ github.repository }}
-
-      - name: Build and push container images
-        uses: docker/build-push-action@v1
+      # Connect to Azure Container registry (ACR)
+      - uses: azure/docker-login@v1
         with:
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-          repository: ${{ steps.repository.outputs.lowercase }}
-          registry: quay.io
-          tag_with_ref: true
-          always_pull: true
-          push: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/') }}
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }} 
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      # Container build and push to a Azure Container registry (ACR)
+      - run: |
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:latest
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:latest
