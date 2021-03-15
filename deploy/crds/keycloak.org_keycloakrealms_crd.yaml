@@ -693,7 +693,9 @@ spec:
                     properties:
                       config:
                         additionalProperties:
-                          type: string
+                          type: array
+                          items:
+                            type: string
                         description: User federation provider config.
                         type: object
                       displayName:

@@ -440,13 +440,13 @@ func keycloakRealmWithUserFederationTest(t *testing.T, framework *test.Framework
 	}
 
 	userFederationProvider := keycloakv1alpha1.KeycloakAPIUserFederationProvider{
-		Config: map[string]string{
-			"vendor":           "ad",
-			"connectionUrl":    "ldap://127.0.0.1",
-			"bindDn":           "foo",
-			"bindCredential":   "p@ssword",
-			"useTruststoreSpi": "ldapsOnly",
-			"editMode":         "READ_ONLY",
+		Config: map[string][]string{
+			"vendor":           {"ad"},
+			"connectionUrl":    {"ldap://127.0.0.1"},
+			"bindDn":           {"foo"},
+			"bindCredential":   {"p@ssword"},
+			"useTruststoreSpi": {"ldapsOnly"},
+			"editMode":         {"READ_ONLY"},
 		},
 		DisplayName:  "ldap-provider",
 		ProviderName: "ldap",
