@@ -688,7 +688,7 @@ func (in *KeycloakAPIUserFederationProvider) DeepCopyInto(out *KeycloakAPIUserFe
 	*out = *in
 	if in.Config != nil {
 		in, out := &in.Config, &out.Config
-		*out = make(map[string][]string, len(*in))
+		*out = make(map[string]string, len(*in))
 		for key, val := range *in {
 			(*out)[key] = val
 		}

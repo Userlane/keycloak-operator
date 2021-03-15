@@ -263,7 +263,7 @@ type KeycloakAPIUserFederationProvider struct {
 
 	// User federation provider config.
 	// +optional
-	Config map[string][]string `json:"config,omitempty"`
+	Config map[string]string `json:"config,omitempty"`
 
 	// The display name of this provider instance.
 	// +optional
