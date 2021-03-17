@@ -222,6 +222,10 @@ type KeycloakAPIRealm struct {
 	// SSO session max lifespan remember me
 	// +optional
 	SsoSessionMaxLifespanRememberMe *int32 `json:"ssoSessionMaxLifespanRememberMe,omitempty"`
+
+	// Groups
+	// +optional
+	Groups []KeycloakGroupRepresentation `json:"groups,omitempty"`
 }
 
 type RoleRepresentationArray []RoleRepresentation
@@ -290,6 +294,41 @@ type ScopeMappingRepresentation struct {
 	// Self
 	// +optional
 	Self string `json:"self,omitempty"`
+}
+
+// https://www.keycloak.org/docs-api/12.0/rest-api/index.html#_grouprepresentation
+type KeycloakGroupRepresentation struct {
+	// Access
+	// +optional
+	Access map[string]string `json:"access,omitempty"`
+
+	// Attributes
+	// +optional
+	Attributes map[string]string `json:"attributes,omitempty"`
+
+	// Client Roles
+	// +optional
+	ClientRoles map[string]string `json:"clientRoles,omitempty"`
+
+	// ID
+	// +optional
+	ID string `json:"id,omitempty"`
+
+	// Name
+	// +optional
+	Name string `json:"name,omitempty"`
+
+	// Path
+	// +optional
+	Path string `json:"path,omitempty"`
+
+	// Realm roles
+	// +optional
+	RealmRoles []string `json:"realmRoles,omitempty"`
+
+	// Sub groups
+	// +optional
+	SubGroups []KeycloakGroupRepresentation `json:"subGroups,omitempty"`
 }
 
 // https://www.keycloak.org/docs-api/11.0/rest-api/index.html#_rolerepresentation-composites

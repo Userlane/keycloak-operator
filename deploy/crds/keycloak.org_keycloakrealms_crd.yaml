@@ -459,6 +459,41 @@ spec:
                   description: Max Login Failures
                   format: int32
                   type: integer
+                groups:
+                  description: Arry of group definitions
+                  items:
+                    properties:
+                      access:
+                        additionalProperties:
+                          type: string
+                        description: Set of access attributes.
+                        type: object
+                      attributes:
+                        additionalProperties:
+                          type: string
+                        description: A set of group attributes.
+                        type: object
+                      clientRoles:
+                        additionalProperties:
+                          type: string
+                        description: A set of client roles.
+                        type: object
+                      id:
+                        description: Group id.
+                        type: string
+                      name:
+                        description: Group name.
+                        type: string
+                      path:
+                        description: Group patch.
+                        type: string
+                      realmRoles:
+                        description: A set of Realm Roles.
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  type: array
                 id:
                   type: string
                 identityProviders:
