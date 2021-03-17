@@ -119,6 +119,13 @@ spec:
                 adminTheme:
                   description: Admin Console Theme
                   type: string
+                attributes:
+                  additionalProperties:
+                    items:
+                      type: string
+                    type: array
+                  description: A set of Attributes.
+                  type: object
                 authenticationFlows:
                   description: Authentication flows
                   items:

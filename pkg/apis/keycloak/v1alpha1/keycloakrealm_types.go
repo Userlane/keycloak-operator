@@ -226,6 +226,10 @@ type KeycloakAPIRealm struct {
 	// Groups
 	// +optional
 	Groups []KeycloakGroupRepresentation `json:"groups,omitempty"`
+
+	// Attributes
+	// +optional
+	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
 type RoleRepresentationArray []RoleRepresentation
