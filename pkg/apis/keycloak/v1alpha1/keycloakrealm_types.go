@@ -229,7 +229,7 @@ type KeycloakAPIRealm struct {
 
 	// Attributes
 	// +optional
-	Attributes map[string][]string `json:"attributes,omitempty"`
+	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
 type RoleRepresentationArray []RoleRepresentation

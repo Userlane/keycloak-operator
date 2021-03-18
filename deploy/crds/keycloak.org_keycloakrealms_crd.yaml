@@ -121,9 +121,7 @@ spec:
                   type: string
                 attributes:
                   additionalProperties:
-                    items:
-                      type: string
-                    type: array
+                    type: string
                   description: A set of Attributes.
                   type: object
                 authenticationFlows:
