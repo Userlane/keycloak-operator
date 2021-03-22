@@ -48,7 +48,7 @@ func (c *Client) create(obj T, resourcePath, resourceName string) (string, error
 
 	req, err := http.NewRequest(
 		"POST",
-		fmt.Sprintf("%s/auth/admin/%s", c.URL, resourcePath),
+		fmt.Sprintf("%s/auth/%s", c.URL, resourcePath),
 		bytes.NewBuffer(jsonValue),
 	)
 	if err != nil {
@@ -85,33 +85,33 @@ func (c *Client) Endpoint() string {
 }
 
 func (c *Client) CreateRealm(realm *v1alpha1.KeycloakRealm) (string, error) {
-	return c.create(realm.Spec.Realm, "realms", "realm")
+	return c.create(realm.Spec.Realm, "admin/realms", "realm")
 }
 
 func (c *Client) CreateClient(client *v1alpha1.KeycloakAPIClient, realmName string) (string, error) {
-	return c.create(client, fmt.Sprintf("realms/%s/clients", realmName), "client")
+	return c.create(client, fmt.Sprintf("admin/realms/%s/clients", realmName), "client")
 }
 
 func (c *Client) CreateClientRole(clientID string, role *v1alpha1.RoleRepresentation, realmName string) (string, error) {
-	return c.create(role, fmt.Sprintf("realms/%s/clients/%s/roles", realmName, clientID), "client role")
+	return c.create(role, fmt.Sprintf("admin/realms/%s/clients/%s/roles", realmName, clientID), "client role")
 }
 
 func (c *Client) CreateClientRealmScopeMappings(specClient *v1alpha1.KeycloakAPIClient, mappings *[]v1alpha1.RoleRepresentation, realmName string) error {
-	_, err := c.create(mappings, fmt.Sprintf("realms/%s/clients/%s/scope-mappings/realm", realmName, specClient.ID), "client realm scope mappings")
+	_, err := c.create(mappings, fmt.Sprintf("admin/realms/%s/clients/%s/scope-mappings/realm", realmName, specClient.ID), "client realm scope mappings")
 	return err
 }
 
 func (c *Client) CreateClientClientScopeMappings(specClient *v1alpha1.KeycloakAPIClient, mappings *v1alpha1.ClientMappingsRepresentation, realmName string) error {
-	_, err := c.create(mappings.Mappings, fmt.Sprintf("realms/%s/clients/%s/scope-mappings/clients/%s", realmName, specClient.ID, mappings.ID), "client client scope mappings")
+	_, err := c.create(mappings.Mappings, fmt.Sprintf("admin/realms/%s/clients/%s/scope-mappings/clients/%s", realmName, specClient.ID, mappings.ID), "client client scope mappings")
 	return err
 }
 
 func (c *Client) CreateUser(user *v1alpha1.KeycloakAPIUser, realmName string) (string, error) {
-	return c.create(user, fmt.Sprintf("realms/%s/users", realmName), "user")
+	return c.create(user, fmt.Sprintf("realms/%s/api/admin/users", realmName), "user")
 }
 
 func (c *Client) CreateFederatedIdentity(fid v1alpha1.FederatedIdentity, userID string, realmName string) (string, error) {
-	return c.create(fid, fmt.Sprintf("realms/%s/users/%s/federated-identity/%s", realmName, userID, fid.IdentityProvider), "federated-identity")
+	return c.create(fid, fmt.Sprintf("admin/realms/%s/users/%s/federated-identity/%s", realmName, userID, fid.IdentityProvider), "federated-identity")
 }
 
 func (c *Client) RemoveFederatedIdentity(fid v1alpha1.FederatedIdentity, userID string, realmName string) error {
@@ -133,20 +133,20 @@ func (c *Client) GetUserFederatedIdentities(userID string, realmName string) ([]
 func (c *Client) CreateUserClientRole(role *v1alpha1.KeycloakUserRole, realmName, clientID, userID string) (string, error) {
 	return c.create(
 		[]*v1alpha1.KeycloakUserRole{role},
-		fmt.Sprintf("realms/%s/users/%s/role-mappings/clients/%s", realmName, userID, clientID),
+		fmt.Sprintf("admin/realms/%s/users/%s/role-mappings/clients/%s", realmName, userID, clientID),
 		"user-client-role",
 	)
 }
 func (c *Client) CreateUserRealmRole(role *v1alpha1.KeycloakUserRole, realmName, userID string) (string, error) {
 	return c.create(
 		[]*v1alpha1.KeycloakUserRole{role},
-		fmt.Sprintf("realms/%s/users/%s/role-mappings/realm", realmName, userID),
+		fmt.Sprintf("admin/realms/%s/users/%s/role-mappings/realm", realmName, userID),
 		"user-realm-role",
 	)
 }
 
 func (c *Client) CreateAuthenticatorConfig(authenticatorConfig *v1alpha1.AuthenticatorConfig, realmName, executionID string) (string, error) {
-	return c.create(authenticatorConfig, fmt.Sprintf("realms/%s/authentication/executions/%s/config", realmName, executionID), "AuthenticatorConfig")
+	return c.create(authenticatorConfig, fmt.Sprintf("admin/realms/%s/authentication/executions/%s/config", realmName, executionID), "AuthenticatorConfig")
 }
 
 func (c *Client) DeleteUserClientRole(role *v1alpha1.KeycloakUserRole, realmName, clientID, userID string) error {
@@ -223,7 +223,7 @@ func (c *Client) FindUserByUsername(name, realm string) (*v1alpha1.KeycloakAPIUs
 }
 
 func (c *Client) CreateIdentityProvider(identityProvider *v1alpha1.KeycloakIdentityProvider, realmName string) (string, error) {
-	return c.create(identityProvider, fmt.Sprintf("realms/%s/identity-provider/instances", realmName), "identity provider")
+	return c.create(identityProvider, fmt.Sprintf("admin/realms/%s/identity-provider/instances", realmName), "identity provider")
 }
 
 // Generic get function for returning a Keycloak resource
