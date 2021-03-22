@@ -287,6 +287,38 @@ func (c *Client) GetRealm(realmName string) (*v1alpha1.KeycloakRealm, error) {
 	return ret, err
 }
 
+func (c *Client) GetRealmPublicKey(realmName string) (string, error) {
+	url := fmt.Sprintf("%s/auth/realms/%s", c.URL, realmName)
+	req, err := http.NewRequest(
+		"GET",
+		url,
+		nil,
+	)
+	if err != nil {
+		logrus.Errorf("error creating GET public key request %+v", err)
+		return "", errors.Wrapf(err, "error creating GET public key request")
+	}
+
+	resp, err := c.requester.Do(req)
+	if err != nil {
+		logrus.Errorf("error on request %+v", err)
+		return "", errors.Wrapf(err, "error performing GET public key request")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return "", errors.Errorf("failed to GET public key: (%d) %s", resp.StatusCode, resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	res := map[string]interface{}{}
+	if err := json.Unmarshal(body, &res); err != nil {
+		return "", err
+	}
+
+	return res["public_key"].(string), err
+}
+
 func (c *Client) GetClient(clientID, realmName string) (*v1alpha1.KeycloakAPIClient, error) {
 	result, err := c.get(fmt.Sprintf("realms/%s/clients/%s", realmName, clientID), "client", func(body []byte) (T, error) {
 		client := &v1alpha1.KeycloakAPIClient{}
@@ -813,6 +845,7 @@ type KeycloakInterface interface {
 
 	CreateRealm(realm *v1alpha1.KeycloakRealm) (string, error)
 	GetRealm(realmName string) (*v1alpha1.KeycloakRealm, error)
+	GetRealmPublicKey(realmName string) (string, error)
 	UpdateRealm(specRealm *v1alpha1.KeycloakRealm) error
 	DeleteRealm(realmName string) error
 	ListRealms() ([]*v1alpha1.KeycloakRealm, error)

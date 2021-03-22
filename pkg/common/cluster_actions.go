@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
+	"github.com/keycloak/keycloak-operator/pkg/model"
 	"github.com/pkg/errors"
+	coreV1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -25,6 +27,7 @@ type ActionRunner interface {
 	Create(obj runtime.Object) error
 	Update(obj runtime.Object) error
 	CreateRealm(obj *v1alpha1.KeycloakRealm) error
+	CreateRealmSecret(obj runtime.Object, Realm string) error
 	DeleteRealm(obj *v1alpha1.KeycloakRealm) error
 	CreateClient(keycloakClient *v1alpha1.KeycloakClient, Realm string) error
 	DeleteClient(keycloakClient *v1alpha1.KeycloakClient, Realm string) error
@@ -123,6 +126,32 @@ func (i *ClusterActionRunner) CreateRealm(obj *v1alpha1.KeycloakRealm) error {
 	}
 
 	_, err := i.keycloakClient.CreateRealm(obj)
+	return err
+}
+
+func (i *ClusterActionRunner) CreateRealmSecret(obj runtime.Object, Realm string) error {
+	if i.keycloakClient == nil {
+		return errors.Errorf("cannot perform realm create when client is nil")
+	}
+	key, err := i.keycloakClient.GetRealmPublicKey(Realm)
+	if err != nil {
+		return err
+	}
+	// This is a little hacky: We overwrite the public key value here...
+	obj.(*coreV1.Secret).Data = map[string][]byte{
+		model.RealmSecretPublicKey: []byte(key),
+	}
+
+	err = controllerutil.SetControllerReference(i.cr.(v1.Object), obj.(v1.Object), i.scheme)
+	if err != nil {
+		return err
+	}
+
+	err = i.client.Create(i.context, obj)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -367,6 +396,12 @@ type CreateRealmAction struct {
 	Msg string
 }
 
+type CreateRealmSecretAction struct {
+	Ref   runtime.Object
+	Msg   string
+	Realm string
+}
+
 type CreateClientAction struct {
 	Ref   *v1alpha1.KeycloakClient
 	Msg   string
@@ -507,6 +542,10 @@ func (i GenericUpdateAction) Run(runner ActionRunner) (string, error) {
 
 func (i CreateRealmAction) Run(runner ActionRunner) (string, error) {
 	return i.Msg, runner.CreateRealm(i.Ref)
+}
+
+func (i CreateRealmSecretAction) Run(runner ActionRunner) (string, error) {
+	return i.Msg, runner.CreateRealmSecret(i.Ref, i.Realm)
 }
 
 func (i CreateClientAction) Run(runner ActionRunner) (string, error) {

@@ -13,6 +13,7 @@ import (
 type RealmState struct {
 	Realm            *kc.KeycloakRealm
 	RealmUserSecrets map[string]*v1.Secret
+	RealmSecret      *v1.Secret
 	Context          context.Context
 	Keycloak         *kc.Keycloak
 }
@@ -36,6 +37,13 @@ func (i *RealmState) Read(cr *kc.KeycloakRealm, realmClient KeycloakInterface, c
 		return nil
 	}
 
+	secret, err := i.readRealmSecret(realm, controllerClient)
+	if err != nil {
+		return err
+	}
+	i.RealmSecret = secret
+	cr.UpdateStatusSecondaryResources(SecretKind, model.KeycloakRealmSecretSelector(realm).Name)
+
 	// Get the state of the realm users
 	i.RealmUserSecrets = make(map[string]*v1.Secret)
 	for _, user := range cr.Spec.Realm.Users {
@@ -49,6 +57,22 @@ func (i *RealmState) Read(cr *kc.KeycloakRealm, realmClient KeycloakInterface, c
 	}
 
 	return nil
+}
+
+func (i *RealmState) readRealmSecret(realm *kc.KeycloakRealm, controllerClient client.Client) (*v1.Secret, error) {
+	key := model.KeycloakRealmSecretSelector(realm)
+	secret := &v1.Secret{}
+
+	// Try to find the realm secret
+	err := controllerClient.Get(i.Context, key, secret)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return secret, err
 }
 
 func (i *RealmState) readRealmUserSecret(realm *kc.KeycloakRealm, user *kc.KeycloakAPIUser, controllerClient client.Client) (*v1.Secret, error) {

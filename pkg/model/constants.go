@@ -54,4 +54,5 @@ const (
 	MaxUnavailableNumberOfPods            = 1
 	ServiceMonitorName                    = ApplicationName + "-service-monitor"
 	MigrateBackupName                     = "migrate-backup"
+	RealmSecretPublicKey                  = "PUBLIC_KEY"
 )
