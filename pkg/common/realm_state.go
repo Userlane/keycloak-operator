@@ -33,16 +33,20 @@ func (i *RealmState) Read(cr *kc.KeycloakRealm, realmClient KeycloakInterface, c
 	}
 
 	i.Realm = realm
-	if realm == nil || len(cr.Spec.Realm.Users) == 0 {
+	if realm == nil {
 		return nil
 	}
 
-	secret, err := i.readRealmSecret(realm, controllerClient)
+	secret, err := i.readRealmSecret(cr, controllerClient)
 	if err != nil {
 		return err
 	}
 	i.RealmSecret = secret
 	cr.UpdateStatusSecondaryResources(SecretKind, model.KeycloakRealmSecretSelector(realm).Name)
+
+	if len(cr.Spec.Realm.Users) == 0 {
+		return nil
+	}
 
 	// Get the state of the realm users
 	i.RealmUserSecrets = make(map[string]*v1.Secret)
