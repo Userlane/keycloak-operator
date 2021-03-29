@@ -40,6 +40,7 @@ func (i *KeycloakRealmReconciler) ReconcileRealmCreate(state *common.RealmState,
 	}
 
 	desired.AddAction(i.getBrowserRedirectorDesiredState(state, cr))
+	desired.AddAction((i.GetKeycloakRealmSecretDesiredState(state, cr)))
 
 	return desired
 }
@@ -73,6 +74,23 @@ func (i *KeycloakRealmReconciler) getBrowserRedirectorDesiredState(state *common
 		Ref: cr,
 		Msg: "configure browser redirector",
 	}
+}
+
+func (i *KeycloakRealmReconciler) GetKeycloakRealmSecretDesiredState(realmState *common.RealmState, cr *kc.KeycloakRealm) common.ClusterAction {
+	if cr.DeletionTimestamp != nil {
+		// Delete Secret
+	}
+
+	keycloakAdminSecret := model.KeycloakRealmSecret(cr)
+
+	if realmState.RealmSecret == nil {
+		return common.CreateRealmSecretAction{
+			Ref:   keycloakAdminSecret,
+			Msg:   "Create Keycloak realm secret",
+			Realm: cr.Spec.Realm.Realm,
+		}
+	}
+	return nil
 }
 
 func (i *KeycloakRealmReconciler) getDesiredRealmState(state *common.RealmState, cr *kc.KeycloakRealm) common.ClusterAction {
