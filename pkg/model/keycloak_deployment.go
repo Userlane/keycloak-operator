@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -20,6 +21,7 @@ const (
 	ProbeTimeoutSeconds         = 22
 	ProbeTimeBetweenRunsSeconds = 30
 	ProbeFailureThreshold       = 10
+	ImagePullSecretName         = "IMAGE_PULL_SECRET"
 )
 
 func GetServiceEnvVar(suffix string) string {
@@ -233,6 +235,11 @@ func KeycloakDeployment(cr *v1alpha1.Keycloak, dbSecret *v1.Secret) *v13.Statefu
 							Command:         cr.Spec.KeycloakDeploymentSpec.Experimental.Command,
 							Resources:       getResources(cr),
 							ImagePullPolicy: v1.PullAlways,
+						},
+					},
+					ImagePullSecrets: []v1.LocalObjectReference{
+						{
+							Name: os.Getenv(ImagePullSecretName),
 						},
 					},
 				},
