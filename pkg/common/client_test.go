@@ -16,7 +16,7 @@ const (
 	RealmsGetPath          = "/auth/admin/realms/%s"
 	RealmsCreatePath       = "/auth/admin/realms"
 	RealmsDeletePath       = "/auth/admin/realms/%s"
-	UserCreatePath         = "/auth/admin/realms/%s/users"
+	UserCreatePath         = "/auth/realms/%s/api/admin/users"
 	UserDeletePath         = "/auth/admin/realms/%s/users/%s"
 	UserGetPath            = "/auth/admin/realms/%s/users/%s"
 	UserFindByUsernamePath = "/auth/admin/realms/%s/users?username=%s&max=-1"

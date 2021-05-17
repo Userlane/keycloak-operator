@@ -1,6 +1,7 @@
 package keycloak
 
 import (
+	"os"
 	"reflect"
 	"strconv"
 	"testing"
@@ -509,6 +510,22 @@ func TestKeycloakReconciler_Test_Recreate_Does_Not_Update_Existing_Credentials(t
 	// then
 	assert.Equal(t, username, secret.Data[model.AdminUsernameProperty])
 	assert.Equal(t, password, secret.Data[model.AdminPasswordProperty])
+}
+
+func TestKeycloakReconciler_Test_Update_Credentials_If_Env_Set(t *testing.T) {
+	// given
+	cr := &v1alpha1.Keycloak{}
+	secret := model.KeycloakAdminSecret(cr)
+	envPassword := "dfiW28F="
+	os.Setenv("KEYCLOAK_PASSWORD", envPassword)
+
+	// when
+	username := secret.Data[model.AdminUsernameProperty]
+	secret = model.KeycloakAdminSecretReconciled(cr, secret)
+
+	// then
+	assert.Equal(t, username, secret.Data[model.AdminUsernameProperty])
+	assert.Equal(t, []byte(envPassword), secret.Data[model.AdminPasswordProperty])
 }
 
 func TestKeycloakReconciler_Test_Should_Create_PDB(t *testing.T) {

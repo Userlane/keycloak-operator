@@ -1,6 +1,8 @@
 package model
 
 import (
+	"os"
+
 	"github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,7 +21,7 @@ func KeycloakAdminSecret(cr *v1alpha1.Keycloak) *v1.Secret {
 		},
 		Data: map[string][]byte{
 			AdminUsernameProperty: []byte("admin"),
-			AdminPasswordProperty: []byte(GenerateRandomString(10)),
+			AdminPasswordProperty: []byte(GetPassword()),
 		},
 		Type: "Opaque",
 	}
@@ -37,8 +39,25 @@ func KeycloakAdminSecretReconciled(cr *v1alpha1.Keycloak, currentState *v1.Secre
 	if val, ok := reconciled.Data[AdminUsernameProperty]; !ok || len(val) == 0 {
 		reconciled.Data[AdminUsernameProperty] = []byte("admin")
 	}
-	if val, ok := reconciled.Data[AdminPasswordProperty]; !ok || len(val) == 0 {
-		reconciled.Data[AdminPasswordProperty] = []byte(GenerateRandomString(10))
+	adminPassword, ok := reconciled.Data[AdminPasswordProperty]
+	envAdminPassword := []byte(GetEnvPassword())
+	if !ok || len(adminPassword) == 0 {
+		reconciled.Data[AdminPasswordProperty] = []byte(GetPassword())
+	} else if len(envAdminPassword) != 0 && string(adminPassword) != string(envAdminPassword) {
+		reconciled.Data[AdminPasswordProperty] = envAdminPassword
 	}
 	return reconciled
+}
+
+func GetEnvPassword() string {
+	return os.Getenv("KEYCLOAK_PASSWORD")
+}
+
+func GetPassword() string {
+	password := GetEnvPassword()
+
+	if password == "" {
+		return GenerateRandomString(10)
+	}
+	return password
 }

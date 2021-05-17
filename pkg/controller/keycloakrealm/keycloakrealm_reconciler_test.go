@@ -58,6 +58,7 @@ func getDummyState() *common.RealmState {
 	return &common.RealmState{
 		Realm:            nil,
 		RealmUserSecrets: nil,
+		RealmSecret:      nil,
 		Context:          nil,
 		Keycloak:         nil,
 	}
@@ -154,6 +155,7 @@ func TestKeycloakRealmReconciler_Update(t *testing.T) {
 	state.Realm = realm
 	state.RealmUserSecrets = make(map[string]*v12.Secret)
 	state.RealmUserSecrets[realm.Spec.Realm.Users[0].UserName] = &v12.Secret{}
+	state.RealmSecret = &v12.Secret{}
 
 	// when
 	desiredState := reconciler.Reconcile(state, realm)
